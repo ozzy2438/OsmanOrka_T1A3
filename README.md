@@ -8,22 +8,9 @@ The Financial Summary Terminal App is a Python-based application that helps user
 1. Transaction Logging: Log income and expenses with categories.
 2. Budget Management: Set and track budgets for different expense categories.
 3. Financial Summary: View total income, expenses, and savings with visualizations.
-
 ## Installation
 1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/T1A3-Financial-Summary.git
-   cd financial-summary
-   ```
-2. Run the setup script:
-   ```
-   ./src/setup.sh
-   ```
 
-## Usage
-1. Run the application:
-   ```
-   ./src/run.sh
    ```
 2. Follow the on-screen prompts to log transactions, set budgets, and view summaries.
 3. When you choose to view the summary, the application will display charts and graphs.

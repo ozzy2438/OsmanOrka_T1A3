@@ -1,0 +1,16 @@
+amount,category,transaction_type,date
+100.50,Groceries,expense,2023-05-01
+50.00,Transportation,expense,2023-05-02
+1500.00,Salary,income,2023-05-03
+200.00,Dining Out,expense,2023-05-05
+75.00,Utilities,expense,2023-05-07
+30.00,Entertainment,expense,2023-05-08
+500.00,Rent,expense,2023-05-10
+100.00,Gift,income,2023-05-12
+80.00,Clothing,expense,2023-05-15
+25.00,Subscriptions,expense,2023-05-18
+1500.00,Salary,income,2023-05-20
+150.00,Healthcare,expense,2023-05-22
+60.00,Home Improvement,expense,2023-05-25
+40.00,Books,expense,2023-05-28
+20.00,Donations,expense,2023-05-30

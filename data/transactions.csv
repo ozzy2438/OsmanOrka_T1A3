@@ -1,0 +1,3 @@
+amount,category,transaction_type,date,currency
+100.0,Groceries,expense,2023-05-01,USD
+50.0,Entertainment,expense,2023-05-02,USD

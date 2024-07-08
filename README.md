@@ -1,34 +1,51 @@
-
 # Financial Summary Terminal App
 
 ## Description
-The Financial Summary Terminal App is a Python-based application that helps users track their income and expenses, set budgets, and view financial summaries with visualizations.
+The Financial Summary Terminal App is a Python-based application that helps users track their income and expenses, set budgets, and view financial summaries with interactive visualizations.
 
 ## Features
-1. Transaction Logging: Log income and expenses with categories.
+1. Transaction Logging: Log income and expenses with categories, dates, and currencies.
 2. Budget Management: Set and track budgets for different expense categories.
-3. Financial Summary: View total income, expenses, and savings with visualizations.
+3. Financial Summary: View total income, expenses, and savings with interactive visualizations.
+4. Date Range Filtering: View transactions within a specific date range.
+5. Recurring Transactions: Set up recurring transactions for regular income or expenses.
+6. Data Export: Export financial data for external analysis.
+7. Interactive Dashboard: View a comprehensive financial dashboard with Plotly.
+8. Live Updates: Start a live update mode to see real-time changes in your financial data.
+
 ## Installation
 1. Clone this repository:
+   ```
+   git clone https://github.com/ozzy2438/T1A3-Financial-Summary.git
+   cd T1A3-Financial-Summary
+   ```
+2. Install the required dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
+## Usage
+1. Run the application:
+   ```
+   python src/modules/main.py
    ```
 2. Follow the on-screen prompts to log transactions, set budgets, and view summaries.
-3. When you choose to view the summary, the application will display charts and graphs.
+3. When you choose to view the summary or interactive dashboard, the application will display charts and graphs using Plotly.
 
 ## System Requirements
 - Python 3.7 or higher
-- matplotlib library
+- Required libraries: matplotlib, colorama, pandas, plotly
 
 ## File Structure
-- `src/modules/`: Contains the main Python scripts
-- `src/data/`: Stores CSV files for transactions and budgets
-- `docs/manual_testing.md`: Contains manual testing procedures
+- `src/modules/`: Contains the main Python scripts (main.py, summary.py, transaction.py, budget.py, utils.py, recurring_transaction.py)
+- `src/`: Contains setup and run scripts
+- `requirements.txt`: Lists all the Python dependencies
 
 ## Testing
-Refer to `docs/manual_testing.md` for testing procedures and results.
+Manual testing procedures are available in the application. You can test various features by following the on-screen prompts.
 
 ## Contributing
-Please read `CONTRIBUTING.md` for details on our code of conduct and the process for submitting pull requests.
+Contributions to improve the Financial Summary Terminal App are welcome. Please feel free to submit pull requests or open issues for any bugs or feature requests.
 
 ## License
 This project is licensed under the MIT License - see the `LICENSE.md` file for details.

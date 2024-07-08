@@ -1,17 +1,27 @@
 import matplotlib.pyplot as plt
 from colorama import Fore, Style
 import numpy as np
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+import pandas as pd
+import threading
+import time
 
 class Summary:
+    def __init__(self):
+        self.update_interval = 5  # 5 saniyede bir güncelle
+        self.stop_update = False
+        self.update_thread = None
+
     def generate_summary(self, transactions, budget):
         income = sum(t.amount for t in transactions if t.transaction_type == 'income')
-        expenses = sum(t.amount for t in transactions if t.transaction_type == 'expense')
+        expenses = sum(abs(t.amount) for t in transactions if t.transaction_type == 'expense')
         savings = income - expenses
 
         currencies = set(t.currency for t in transactions)
         for currency in currencies:
             currency_income = sum(t.amount for t in transactions if t.transaction_type == 'income' and t.currency == currency)
-            currency_expenses = sum(t.amount for t in transactions if t.transaction_type == 'expense' and t.currency == currency)
+            currency_expenses = sum(abs(t.amount) for t in transactions if t.transaction_type == 'expense' and t.currency == currency)
             currency_savings = currency_income - currency_expenses
 
             print(Fore.CYAN + Style.BRIGHT + f"Total Income ({currency}): {currency} {currency_income:.2f}")
@@ -20,7 +30,7 @@ class Summary:
 
             if currency_income > 0:
                 savings_rate = (currency_savings / currency_income) * 100
-                print(Fore.CYAN + Style.BRIGHT + f"Savings Rate ({currency}): {savings_rate:.2f}%")
+                print(Fore.CYAN + Style.BRIGHT + f"Savings Rate ({currency}): %{savings_rate:.2f}")
 
         self.generate_expense_chart(transactions)
         self.generate_budget_comparison(transactions, budget)
@@ -30,57 +40,33 @@ class Summary:
         categories = {}
         for t in transactions:
             if t.transaction_type == 'expense':
-                categories[t.category] = categories.get(t.category, 0) + t.amount
+                categories[t.category] = categories.get(t.category, 0) + abs(t.amount)
 
-        plt.figure(figsize=(10, 6))
-        plt.pie(categories.values(), labels=categories.keys(), autopct='%1.1f%%')
-        plt.title("Expense Distribution")
-        plt.show()
+        fig = go.Figure(data=[go.Pie(labels=list(categories.keys()), values=list(categories.values()))])
+        fig.update_layout(title_text="Expense Distribution", template="plotly_dark")
+        fig.show()
 
     def generate_budget_comparison(self, transactions, budget):
         actual_expenses = {}
         for t in transactions:
             if t.transaction_type == 'expense':
-                actual_expenses[t.category] = actual_expenses.get(t.category, 0) + t.amount
+                actual_expenses[t.category] = actual_expenses.get(t.category, 0) + abs(t.amount)
 
         categories = list(set(list(actual_expenses.keys()) + list(budget.budgets.keys())))
         actual = [actual_expenses.get(cat, 0) for cat in categories]
         budgeted = [budget.get_budget(cat) for cat in categories]
 
-        if not categories:
-            print("No data available for budget comparison.")
-            return
+        fig = make_subplots(rows=2, cols=1, specs=[[{'type':'bar'}], [{'type':'pie'}]])
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12))
-        x = range(len(categories))
-        width = 0.35
+        fig.add_trace(go.Bar(x=categories, y=actual, name="Actual", marker_color='#ff9999'), row=1, col=1)
+        fig.add_trace(go.Bar(x=categories, y=budgeted, name="Budgeted", marker_color='#66b3ff'), row=1, col=1)
 
-        # Bar chart
-        ax1.bar([i - width/2 for i in x], actual, width, label='Actual', color='#ff9999')
-        ax1.bar([i + width/2 for i in x], budgeted, width, label='Budgeted', color='#66b3ff')
-
-        ax1.set_xlabel('Categories')
-        ax1.set_ylabel('Amount')
-        ax1.set_title('Budget vs Actual Expenses')
-        ax1.set_xticks(x)
-        ax1.set_xticklabels(categories, rotation=45, ha='right')
-        ax1.legend()
-
-        # Add value labels on bars
-        for i, v in enumerate(actual):
-            ax1.text(i - width/2, v, f'${v:.2f}', ha='center', va='bottom')
-        for i, v in enumerate(budgeted):
-            ax1.text(i + width/2, v, f'${v:.2f}', ha='center', va='bottom')
-
-        # Pie chart for budget allocation
         total_budget = sum(budgeted)
         budget_percentages = [b/total_budget*100 for b in budgeted]
-        colors = plt.cm.Set3(np.linspace(0, 1, len(categories)))
-        ax2.pie(budget_percentages, labels=categories, autopct='%1.1f%%', startangle=90, colors=colors)
-        ax2.set_title('Budget Allocation')
+        fig.add_trace(go.Pie(labels=categories, values=budget_percentages), row=2, col=1)
 
-        plt.tight_layout()
-        plt.show()
+        fig.update_layout(title_text="Budget Comparison", height=800, template="plotly_dark")
+        fig.show()
 
         # Print detailed comparison
         print("\nDetailed Budget Comparison:")
@@ -111,32 +97,60 @@ class Summary:
         expenses = [monthly_data[m]["expense"] for m in months]
         savings = [inc - exp for inc, exp in zip(income, expenses)]
 
-        if not months:
-            print("No data available for monthly trend.")
-            return
+        fig = make_subplots(rows=2, cols=1)
 
-        plt.figure(figsize=(12, 8))
-        plt.subplot(2, 1, 1)
-        plt.plot(months, income, label='Income', marker='o', color='g')
-        plt.plot(months, expenses, label='Expenses', marker='o', color='r')
-        plt.plot(months, savings, label='Savings', marker='o', color='b')
-        plt.title('Monthly Income, Expenses, and Savings Trend')
-        plt.xlabel('Month')
-        plt.ylabel('Amount')
-        plt.legend()
-        plt.grid(True)
+        fig.add_trace(go.Scatter(x=months, y=income, mode='lines+markers', name='Income'), row=1, col=1)
+        fig.add_trace(go.Scatter(x=months, y=expenses, mode='lines+markers', name='Expense'), row=1, col=1)
+        fig.add_trace(go.Scatter(x=months, y=savings, mode='lines+markers', name='Savings'), row=1, col=1)
 
-        plt.subplot(2, 1, 2)
-        width = 0.35
-        x = range(len(months))
-        plt.bar([i - width/2 for i in x], income, width, label='Income', color='g', alpha=0.7)
-        plt.bar([i + width/2 for i in x], expenses, width, label='Expenses', color='r', alpha=0.7)
-        plt.title('Monthly Income vs Expenses')
-        plt.xlabel('Month')
-        plt.ylabel('Amount')
-        plt.legend()
-        plt.xticks(x, months, rotation=45)
-        plt.grid(True)
+        fig.add_trace(go.Bar(x=months, y=income, name='Income'), row=2, col=1)
+        fig.add_trace(go.Bar(x=months, y=expenses, name='Expense'), row=2, col=1)
 
-        plt.tight_layout()
-        plt.show()
+        fig.update_layout(title_text="Monthly Trends", height=800, template="plotly_dark")
+        fig.show()
+
+    def start_live_update(self, transactions, budget):
+        self.update_thread = threading.Thread(target=self.update_data, args=(transactions, budget))
+        self.update_thread.start()
+
+    def stop_live_update(self):
+        self.stop_update = True
+        if self.update_thread:
+            self.update_thread.join()
+
+    def update_data(self, transactions, budget):
+        while not self.stop_update:
+            self.generate_summary(transactions, budget)
+            time.sleep(self.update_interval)
+
+    def generate_interactive_dashboard(self, transactions, budget):
+        df = pd.DataFrame([(t.date, t.amount, t.category, t.transaction_type, t.currency) for t in transactions],
+                          columns=['Date', 'Amount', 'Category', 'Type', 'Currency'])
+        
+        fig = make_subplots(rows=2, cols=2, specs=[[{'type': 'pie'}, {'type': 'bar'}],
+                                                   [{'type': 'scatter'}, {'type': 'table'}]])
+
+        # Expense Distribution
+        expense_data = df[df['Type'] == 'expense'].groupby('Category')['Amount'].sum()
+        fig.add_trace(go.Pie(labels=expense_data.index, values=expense_data.values, name="Expenses"), row=1, col=1)
+
+        # Budget Comparison
+        actual_expenses = df[df['Type'] == 'expense'].groupby('Category')['Amount'].sum()
+        budgeted = pd.Series({cat: budget.get_budget(cat) for cat in actual_expenses.index})
+        fig.add_trace(go.Bar(x=actual_expenses.index, y=actual_expenses.values, name="Actual"), row=1, col=2)
+        fig.add_trace(go.Bar(x=budgeted.index, y=budgeted.values, name="Budgeted"), row=1, col=2)
+
+        # Monthly Trend
+        monthly_data = df.groupby([df['Date'].dt.to_period('M'), 'Type'])['Amount'].sum().unstack()
+        fig.add_trace(go.Scatter(x=monthly_data.index.astype(str), y=monthly_data['income'], name="Income"), row=2, col=1)
+        fig.add_trace(go.Scatter(x=monthly_data.index.astype(str), y=monthly_data['expense'], name="Expense"), row=2, col=1)
+
+        # Recent Transactions Table
+        recent_transactions = df.sort_values('Date', ascending=False).head(10)
+        fig.add_trace(go.Table(
+            header=dict(values=list(recent_transactions.columns)),
+            cells=dict(values=[recent_transactions[col] for col in recent_transactions.columns])
+        ), row=2, col=2)
+
+        fig.update_layout(height=800, title_text="Interactive Financial Dashboard", template="plotly_dark")
+        fig.show()

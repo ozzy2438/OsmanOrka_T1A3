@@ -1,4 +1,4 @@
-#!/Users/osmanorka/financial_summary/venv/bin/python3.12
+#!/Users/osmanorka/T1A3-Financial-Summary/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

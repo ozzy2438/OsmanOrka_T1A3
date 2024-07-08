@@ -39,9 +39,11 @@ def main():
         print("2. Set Budget")
         print("3. View Summary")
         print("4. View Transactions by Date Range")
-        print("5. Exit")
-        print("6. Set Recurring Transaction")
-        print("7. Export Data")
+        print("5. Set Recurring Transaction")
+        print("6. Export Data")
+        print("7. View Interactive Dashboard")
+        print("8. Start Live Update")
+        print("9. Exit")
         
         choice = input("Enter your choice: ").strip()
         
@@ -91,10 +93,6 @@ def main():
                 print(Fore.CYAN + str(transaction))
 
         elif choice == "5":
-            print(Fore.GREEN + "Thank you for using the Financial Summary Terminal App!")
-            sys.exit(0)
-
-        elif choice == "6":
             amount = get_user_input("Enter amount: ", float)
             category = get_user_input("Enter category: ", str)
             transaction_type = get_user_input("Enter type (income/expense): ", str).lower()
@@ -112,9 +110,21 @@ def main():
             save_recurring_transaction(recurring_transaction)
             print(Fore.GREEN + "Recurring transaction set successfully!")
 
-        elif choice == "7":
+        elif choice == "6":
             export_data(transactions, budget)
             print(Fore.GREEN + "Data exported successfully!")
+
+        elif choice == "7":
+            summary.generate_interactive_dashboard(transactions, budget)
+
+        elif choice == "8":
+            summary.start_live_update(transactions, budget)
+            input("Press Enter to stop live update...")
+            summary.stop_live_update()
+
+        elif choice == "9":
+            print(Fore.GREEN + "Thank you for using the Financial Summary Terminal App!")
+            sys.exit(0)
 
         else:
             print(Fore.RED + "Invalid choice. Please try again.")

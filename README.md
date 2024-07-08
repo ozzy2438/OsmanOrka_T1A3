@@ -16,8 +16,8 @@ The Financial Summary Terminal App is a Python-based application that helps user
 ## Installation
 1. Clone this repository:
    ```
-   git clone https://github.com/ozzy2438/T1A3-Financial-Summary.git
-   cd T1A3-Financial-Summary
+   git clone https://github.com/ozzy2438/OsmanOrka_T1A3.git
+   cd OsmanOrka_T1A3
    ```
 2. Install the required dependencies:
    ```
